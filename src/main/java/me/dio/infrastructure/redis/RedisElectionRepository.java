@@ -9,6 +9,7 @@ import io.smallrye.mutiny.Uni;
 import me.dio.domain.Candidate;
 import me.dio.domain.Election;
 import me.dio.domain.ElectionRepository;
+import me.dio.domain.Vote;
 import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -38,5 +39,12 @@ public class RedisElectionRepository implements ElectionRepository {
         return sortedSetCommands.zrange(KEY + id, 0, -1)
                                 .onItem()
                                 .transform(candidates -> new Election(id, candidates.stream().map(Candidate::new).toList()));
+    }
+
+    @Override
+    public void save(Vote vote) {
+        sortedSetCommands.zincrby(KEY + vote.electionId(), 1, vote.candidateId())
+                         .subscribe()
+                         .with(amount -> LOGGER.info("Voting for " + vote.candidateId()));
     }
 }

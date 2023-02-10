@@ -15,4 +15,8 @@ public class VotingService {
     public Uni<Election> findElection(String id) {
         return electionRepository.findById(id);
     }
+
+    public void save(Vote vote) {
+        electionRepository.save(vote);
+    }
 }
